@@ -154,12 +154,20 @@ var.diag <- sqrt(diag(omega))
 correlation <- omega / (var.diag%*%t(var.diag))
 # corr <- cor(yield[,2:length(yield)],use="pairwise.complete.obs")
 
-
 eigen.values <- eigen(correlation)[[1]]
 
 Q <- dim(yield)[1]/(dim(yield)[2]-1)
 ev <- seq(0, 30, 0.1)
-rho <- 1
+
+lambda.max <- 1 + 1/Q + 2*sqrt(1/Q)
+lambda.min <- 1 + 1/Q - 2*sqrt(1/Q)
+
+rho <- ifelse(ev>lambda.min & ev<lambda.max, Q/2/pi*sqrt((lambda.max-ev)*(ev-lambda.min))/ev, 0)
+hist(eigen.values,30)
+lines(ev,rho)
+
+hist(eigen.values[eigen.values<10],30,freq=TRUE)
+lines(ev,rho)
 
 
 
