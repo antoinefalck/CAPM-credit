@@ -166,8 +166,22 @@ rho <- ifelse(ev>lambda.min & ev<lambda.max, Q/2/pi*sqrt((lambda.max-ev)*(ev-lam
 hist(eigen.values,30)
 lines(ev,rho)
 
-hist(eigen.values[eigen.values<10],30,freq=TRUE)
+
+# Hist eigenvalues
+
+pdf(file="./figure/hist_ev.pdf")
+hist(eigen.values,
+	breaks=50,
+	freq=TRUE,
+	main=NULL,
+	xlab="Valeurs propres",
+	ylab="Fréquence")
+grid()
+dev.off()
+
 lines(ev,rho)
+
+
 
 
 
