@@ -157,28 +157,6 @@ correlation <- omega / (var.diag%*%t(var.diag))
 
 eigen.values <- eigen(correlation)[[1]]
 
-Q <- dim(yield)[1]/(dim(yield)[2]-1)
-ev <- seq(0, 30, 0.05)
-
-# lambda.max <- 1 + 1/Q + 2*sqrt(1/Q)
-# lambda.min <- 1 + 1/Q - 2*sqrt(1/Q)
-
-# rho <- ifelse(ev>lambda.min & ev<lambda.max, Q/2/pi*sqrt((lambda.max-ev)*(ev-lambda.min))/ev, 0)
-
-N <- length(eigen.values)
-sigma <- 1
-rho <- matrix(data=NA, nrow=length(ev), ncol=N+1)
-
-y <- sigma^2
-lambda.max <- y*(1 + 1/Q + 2*sqrt(1/Q))
-lambda.min <- y*(1 + 1/Q - 2*sqrt(1/Q))
-rho[,1] <- ifelse(ev>lambda.min & ev<lambda.max, Q/2/pi/y*sqrt((lambda.max-ev)*(ev-lambda.min))/ev, 0)
-for (i in 1:N) {
-	y <- sigma^2 - sum(eigen.values[1:i])/N
-	lambda.max <- y*(1 + 1/Q + 2*sqrt(1/Q))
-	lambda.min <- y*(1 + 1/Q - 2*sqrt(1/Q))
-	rho[,i+1] <- ifelse(ev>lambda.min & ev<lambda.max, Q/2/pi/y*sqrt((lambda.max-ev)*(ev-lambda.min))/ev, 0)
-}
 
 # Hist eigenvalues
 
@@ -194,31 +172,42 @@ grid()
 # dev.off()
 
 
-# Add dist M-P
-
-h <- hist(eigen.values[eigen.values<2],
-	breaks=100,
-	probability=TRUE,
-	main=NULL,
-	xlab="Valeurs propres",
-	ylab="Probabilité",
-	col="darkblue")
-grid()
-lines(ev,rho[,1],
-	lwd=2,
-	col="red")
-lines(ev,rho[,2],
-	lwd=2,
-	col="green")
-lines(ev,rho[,4],
-	lwd=2,
-	col="violet")
-
 gg <- ggplot(data.frame(eigen.values),aes(eigen.values)) +
 	geom_density(adjust=0.5)
 gg_b <- ggplot_build(gg)
-plot(gg_b$data[[1]]$x,gg_b$data[[1]]$y,
-	type="l")
+gg.x <- gg_b$data[[1]]$x
+gg.y <- gg_b$data[[1]]$y
+
+
+# Pseudo code 1
+
+Q <- dim(yield)[1]/(dim(yield)[2]-1)
+N <- length(eigen.values)
+sigma <- 1
+rho <- matrix(data=NA, nrow=length(gg.x), ncol=N+1)
+mse <- rep(NA,N+1)
+
+y <- sigma^2
+lambda.max <- y*(1 + 1/Q + 2*sqrt(1/Q))
+lambda.min <- y*(1 + 1/Q - 2*sqrt(1/Q))
+idx <- gg.x>lambda.min & gg.x<lambda.max
+rho[,1] <- ifelse(idx, Q/2/pi/y*sqrt((lambda.max-gg.x)*(gg.x-lambda.min))/gg.x, 0)
+mse[1] <- mean((rho[idx,1]-gg.y[idx])^2)
+
+for (i in 1:N) {
+	y <- sigma^2 - sum(eigen.values[1:i])/N
+	lambda.max <- y*(1 + 1/Q + 2*sqrt(1/Q))
+	lambda.min <- y*(1 + 1/Q - 2*sqrt(1/Q))
+	idx <- gg.x>lambda.min & gg.x<lambda.max
+
+	rho[,i+1] <- ifelse(idx, Q/2/pi/y*sqrt((lambda.max-gg.x)*(gg.x-lambda.min))/gg.x, 0)
+	mse[i+1] <- mean((rho[idx,i+1]-gg.y[idx])^2)
+}
+
+
+plot(gg.x,gg.y,
+	type="l",
+	ylim=c(0,4))
 grid()
 lines(ev,rho[,1],
 	lwd=2,
@@ -230,15 +219,8 @@ lines(ev,rho[,4],
 	lwd=2,
 	col="violet")
 
+plot(mse[!is.nan(mse)])
 
 
-
-# Test
-
-x1 <- 1:5
-y1 <- 2*x1
-y2 <- 3*x1
-t <- gather(data.frame(x1,y1,y2),variable,value,-x1)
-ggplot(t,aes(x1,value,color=variable)) + geom_line()+scale_colour_manual(values=c("black", "orange"))
 
 
