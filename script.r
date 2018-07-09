@@ -154,8 +154,6 @@ dev.off()
 
 var.diag <- sqrt(diag(omega))
 correlation <- omega / (var.diag%*%t(var.diag))
-# corr <- cor(yield[,2:length(yield)],use="pairwise.complete.obs")
-
 eigen.values <- eigen(correlation)[[1]]
 
 
@@ -173,18 +171,18 @@ grid()
 # dev.off()
 
 # Or with ggplot2
-ggplot(data.frame(eigen.values),aes(x=eigen.values,y=..density..)) +
-	geom_histogram(fill="darkblue")
+# ggplot(data.frame(eigen.values),aes(x=eigen.values,y=..density..)) +
+# 	geom_histogram(fill="darkblue")
 
+
+# MP distribution and find lambda star
 
 gg <- ggplot(data.frame(eigen.values),aes(eigen.values)) +
-	geom_density(adjust=0.5)
+	geom_density(adjust=0.3)
 gg_b <- ggplot_build(gg)
 gg.x <- gg_b$data[[1]]$x
 gg.y <- gg_b$data[[1]]$y
 
-
-# Pseudo code 1
 
 Q <- dim(yield)[1]/(dim(yield)[2]-1)
 N <- length(eigen.values)
@@ -210,21 +208,36 @@ for (i in 1:N) {
 }
 
 
-plot(gg.x,gg.y,
-	type="l",
-	ylim=c(0,4))
-grid()
-lines(ev,rho[,1],
-	lwd=2,
-	col="red")
-lines(ev,rho[,2],
-	lwd=2,
-	col="green")
-lines(ev,rho[,4],
-	lwd=2,
-	col="violet")
+# Plot smoothed density and MP distribution
 
-plot(mse[!is.nan(mse)])
+pdf(file="./figure/smoothed_hist_ev_and_mp.pdf")
+plot(gg.x[gg.x<2],gg.y[gg.x<2],
+	type="l",
+	ylim=c(0,3.3),
+	lwd=2,
+	xlab="Valeurs propres",
+	ylab="Densité")
+grid()
+lines(gg.x,rho[,1],
+	lwd=2,
+	col="darkred")
+lines(gg.x,rho[,2],
+	lwd=2,
+	col="darkgreen")
+lines(gg.x,rho[,4],
+	lwd=2,
+	col="darkviolet")
+legend("topleft",inset=0.02,
+	c("Densité lissée",
+		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:1])/N,2)),
+		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:2])/N,2)),
+		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:4])/N,2))),
+	col=c("black","darkred","darkgreen","darkviolet"),
+	lwd=rep(2,4))
+dev.off()
+
+
+# plot(mse[!is.nan(mse)])
 
 
 
