@@ -5,6 +5,7 @@
 # Library
 
 # install.packages("latex2exp")
+# install.packages("tidyverse")
 library(latex2exp)
 library(ggplot2)
 
@@ -170,6 +171,10 @@ a <- hist(eigen.values,
 	col="darkblue")
 grid()
 # dev.off()
+
+# Or with ggplot2
+ggplot(data.frame(eigen.values),aes(x=eigen.values,y=..density..)) +
+	geom_histogram(fill="darkblue")
 
 
 gg <- ggplot(data.frame(eigen.values),aes(eigen.values)) +
