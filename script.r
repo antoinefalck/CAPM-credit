@@ -210,7 +210,7 @@ for (i in 1:N) {
 
 # Plot smoothed density and MP distribution
 
-pdf(file="./figure/smoothed_hist_ev_and_mp.pdf")
+# pdf(file="./figure/smoothed_hist_ev_and_mp.pdf")
 plot(gg.x[gg.x<2],gg.y[gg.x<2],
 	type="l",
 	ylim=c(0,3.3),
@@ -229,16 +229,22 @@ lines(gg.x,rho[,4],
 	col="darkviolet")
 legend("topleft",inset=0.02,
 	c("Densité lissée",
+		paste("M-P dist. avec y =",round(sigma^2,2)),
 		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:1])/N,2)),
-		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:2])/N,2)),
-		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:4])/N,2))),
+		paste("M-P dist. avec y =",round(sigma^2 - sum(eigen.values[1:3])/N,2))),
 	col=c("black","darkred","darkgreen","darkviolet"),
 	lwd=rep(2,4))
-dev.off()
+# dev.off()
 
 
-# plot(mse[!is.nan(mse)])
+# MSE like in algo 1
 
+# pdf(file="./figure/eqm.pdf")
+plot(0:6,mse[1:7],
+	xlab="Index",
+	ylab="Erreur quadratique moyenne")
+grid()
+# dev.off()
 
 
 
