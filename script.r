@@ -1,7 +1,14 @@
+###################################
 ############################
-# Projet credit
+#
+#		 Projet credit
+#
 ############################
+###################################
 
+
+
+###################################
 # Library
 
 # install.packages("latex2exp")
@@ -9,6 +16,8 @@
 library(latex2exp)
 library(ggplot2)
 
+
+###################################
 # Import clean data
 
 data.raw <- read.csv("data.csv",header=TRUE)
@@ -150,12 +159,14 @@ dev.off()
 
 
 
+###################################
 # Estimation matrix
 
 var.diag <- sqrt(diag(omega))
 correlation <- omega / (var.diag%*%t(var.diag))
-eigen.values <- eigen(correlation)[[1]]
 
+eigen.values <- eigen(correlation)[[1]]
+eigen.vectors <- eigen(correlation)[[2]]
 
 # Hist eigenvalues
 
@@ -242,9 +253,61 @@ legend("topleft",inset=0.02,
 # pdf(file="./figure/eqm.pdf")
 plot(0:6,mse[1:7],
 	xlab="Index",
-	ylab="Erreur quadratique moyenne")
+	ylab="Erreur quadratique moyenne",
+	lwd=2)
 grid()
 # dev.off()
+
+
+# New correlation matrix
+
+Q <- dim(yield)[1]/(dim(yield)[2]-1)
+N <- length(eigen.values)
+sigma <- 1
+lambda.max <- sigma^2*(1 + 1/Q + 2*sqrt(1/Q))
+
+L <- sum(eigen.values<lambda.max)
+ev.const <- (N*sigma^2-sum(eigen.values[eigen.values>=lambda.max])) / L
+eigen.values.new <- rep(ev.const,N)
+eigen.values.new[1:(N-L)] <- eigen.values[1:(N-L)]
+
+correlation.new <- eigen.vectors %*% diag(eigen.values.new) %*% solve(eigen.vectors)
+correlation.new2 <- correlation.new
+diag(correlation.new2) <- rep(1,N)
+
+omega.new <- correlation.new * (var.diag%*%t(var.diag))
+omega.new2 <- correlation.new2 * (var.diag%*%t(var.diag))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
