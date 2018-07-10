@@ -265,6 +265,7 @@ Q <- dim(yield)[1]/(dim(yield)[2]-1)
 N <- length(eigen.values)
 sigma <- 1
 lambda.max <- sigma^2*(1 + 1/Q + 2*sqrt(1/Q))
+# lambda.max <- 3*lambda.max
 
 L <- sum(eigen.values<lambda.max)
 ev.const <- (N*sigma^2-sum(eigen.values[eigen.values>=lambda.max])) / L
@@ -272,42 +273,45 @@ eigen.values.new <- rep(ev.const,N)
 eigen.values.new[1:(N-L)] <- eigen.values[1:(N-L)]
 
 correlation.new <- eigen.vectors %*% diag(eigen.values.new) %*% solve(eigen.vectors)
-correlation.new2 <- correlation.new
-diag(correlation.new2) <- rep(1,N)
-
+diag(correlation.new) <- rep(1,N)
 omega.new <- correlation.new * (var.diag%*%t(var.diag))
-omega.new2 <- correlation.new2 * (var.diag%*%t(var.diag))
 
 
+# Efficient frontiers new omega
 
+inv.omega.new <- solve(omega.new)
 
+A.new <- as.numeric(mu %*% inv.omega.new %*% mu)
+B.new <- as.numeric(mu %*% inv.omega.new %*% one)
+C.new <- as.numeric(one %*% inv.omega.new %*% one)
 
+ef.nra.new <- v*(1+r) + std*sqrt(A.new+(1+r)**2*C.new-2*(1+r)*B.new)
 
+lambda.ra.plus.new <- sqrt((A.new*C.new-B.new**2)/(std**2*C.new-v**2))
+phi.ra.plus.new <- (B.new-lambda.ra.plus.new*v)/C.new
+ef.ra.plus.new <- (A.new-phi.ra.plus.new*B.new)/lambda.ra.plus.new
 
+# lambda.ra.minus <- -sqrt((A*C-B**2)/(std**2*C-v**2))
+# phi.ra.minus <- (B-lambda.ra.minus*v)/C
+# ef.ra.minus <- (A-phi.ra.minus*B)/lambda.ra.minus
 
+# std.min <- v/sqrt(C)
+# ef.ra.min <- v*B/C
 
+# idx.diff <- which.min(abs(ef.nra-ef.ra.plus))
+# std.diff <- std[idx.diff]
+# ef.diff <- ef.nra[idx.diff]
 
+# xdist <- 2
+# ydist <- 5e-4
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+plot(std*1e4,ef.nra,
+	type="l",
+	lwd=2)
+lines(std*1e4,ef.nra.new,
+	col="blue",
+	lwd=2)
+lines(std*1e4,ef.ra.plus)
+lines(std*1e4,ef.ra.plus.new,
+	col="blue")
 
