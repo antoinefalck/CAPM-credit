@@ -149,7 +149,7 @@ points(std.diff*1e4,ef.diff,
 	pch=3,
 	lwd=2)
 legend("topleft",inset=0.02,
-	c("With NRA","Whithout NRA","Min variance portfolio","Same portfolio"),
+	c("Avec actif sans risque","Sans actif sans risque","Portefeuille de variance min","Même portefeuille"),
 	col=c("black","blue","green","red"),
 	lwd=rep(2,4),
 	lty=c(1,1,NA,NA),
@@ -291,27 +291,36 @@ lambda.ra.plus.new <- sqrt((A.new*C.new-B.new**2)/(std**2*C.new-v**2))
 phi.ra.plus.new <- (B.new-lambda.ra.plus.new*v)/C.new
 ef.ra.plus.new <- (A.new-phi.ra.plus.new*B.new)/lambda.ra.plus.new
 
-# lambda.ra.minus <- -sqrt((A*C-B**2)/(std**2*C-v**2))
-# phi.ra.minus <- (B-lambda.ra.minus*v)/C
-# ef.ra.minus <- (A-phi.ra.minus*B)/lambda.ra.minus
+lambda.ra.minus.new <- -sqrt((A.new*C.new-B.new**2)/(std**2*C.new-v**2))
+phi.ra.minus.new <- (B.new-lambda.ra.minus.new*v)/C.new
+ef.ra.minus.new <- (A.new-phi.ra.minus.new*B.new)/lambda.ra.minus.new
 
-# std.min <- v/sqrt(C)
-# ef.ra.min <- v*B/C
-
-# idx.diff <- which.min(abs(ef.nra-ef.ra.plus))
-# std.diff <- std[idx.diff]
-# ef.diff <- ef.nra[idx.diff]
-
-# xdist <- 2
-# ydist <- 5e-4
-
+pdf(file="./figure/ef_new.pdf")
 plot(std*1e4,ef.nra,
 	type="l",
-	lwd=2)
+	lwd=2,
+	xlab=TeX("$\\sqrt{Var\\[V_1\\]}$ (bp)"),
+	ylab=TeX("$E\\[V_1\\]$ (ccy)"))
 lines(std*1e4,ef.nra.new,
 	col="blue",
 	lwd=2)
-lines(std*1e4,ef.ra.plus)
+lines(std*1e4,ef.ra.plus,
+	lwd=2)
+lines(std*1e4,ef.ra.minus,
+	lty=2,
+	lwd=2)
 lines(std*1e4,ef.ra.plus.new,
-	col="blue")
+	col="blue",
+	lwd=2)
+lines(std*1e4,ef.ra.minus.new,
+	col="blue",
+	lty=2,
+	lwd=2)
+grid()
+legend("topleft",inset=0.02,
+	c("Calcul avec martice brute","Calcul avec matrice filtrée"),
+	col=c("black","blue"),
+	lwd=rep(2,2),
+	lty=c(1,1))
+dev.off()
 
