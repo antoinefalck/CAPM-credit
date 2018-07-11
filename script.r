@@ -272,7 +272,7 @@ ev.const <- (N*sigma^2-sum(eigen.values[eigen.values>=lambda.max])) / L
 eigen.values.new <- rep(ev.const,N)
 eigen.values.new[1:(N-L)] <- eigen.values[1:(N-L)]
 
-correlation.new <- eigen.vectors %*% diag(eigen.values.new) %*% solve(eigen.vectors)
+correlation.new <- eigen.vectors %*% diag(eigen.values.new) %*% t(eigen.vectors)
 diag(correlation.new) <- rep(1,N)
 omega.new <- correlation.new * (var.diag%*%t(var.diag))
 
@@ -295,7 +295,7 @@ lambda.ra.minus.new <- -sqrt((A.new*C.new-B.new**2)/(std**2*C.new-v**2))
 phi.ra.minus.new <- (B.new-lambda.ra.minus.new*v)/C.new
 ef.ra.minus.new <- (A.new-phi.ra.minus.new*B.new)/lambda.ra.minus.new
 
-pdf(file="./figure/ef_new.pdf")
+# pdf(file="./figure/ef_new.pdf")
 plot(std*1e4,ef.nra,
 	type="l",
 	lwd=2,
@@ -322,5 +322,5 @@ legend("topleft",inset=0.02,
 	col=c("black","blue"),
 	lwd=rep(2,2),
 	lty=c(1,1))
-dev.off()
+# dev.off()
 
